@@ -36,9 +36,13 @@ function multiattach_post_form_pre()
  */
 function multiattach()
 {
-	global $settings, $topic, $scripturl, $board, $options, $language, $user_info;
+	global $settings, $topic, $scripturl, $board, $options, $language, $user_info, $board, $context;
 
 	header('Content-type: text/plain; charset=utf-8');
+
+	// No board?
+	if (empty($board) && empty($context['allow_no_board']))
+		multiattach_error('no_board');
 
 	// Not allowed to post attachments?
 	if (!allowedTo('post_attachment'))
