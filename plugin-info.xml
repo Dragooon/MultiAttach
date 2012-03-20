@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin id="Dragooon:MultiAttach">
-  <name>Multiple Attachments</name>
+  <name>Improved Attachments Upload</name>
   <author email="mail@dragooon.net" url="http://smf-media.com/">Shitiz "Dragooon" Garg</author>
   <description>Improves attachment interface by allowing AJAX uploading, drag and drop and multiple selection of files on modern browsers</description>
   <version>1.0</version>
