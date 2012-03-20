@@ -65,7 +65,7 @@ $(function()
 
 		xhr = new XMLHttpRequest();
 		self.current_xhr = xhr;
-		xhr.open('POST', we_prepareScriptUrl() + 'action=multiattach;filename=' + $files[$current].fileName, true);
+		xhr.open('POST', we_prepareScriptUrl() + 'action=multiattach;filename=' + $files[$current].fileName + ';board=' + curr_board, true);
 		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 		xhr.setRequestHeader("X-File-Name", encodeURIComponent($files[$current].fileName));
 		xhr.setRequestHeader("Content-Type", "application/octet-stream");

@@ -19,9 +19,13 @@
  */
 function multiattach_post_form_pre()
 {
-	global $context;
+	global $context, $board, $topic;
  	
  	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
+ 	add_js('
+ 	curr_board = ', $board, ';
+ 	curr_topic = ', $topic, ';
+ ');
 }
 
 /**
