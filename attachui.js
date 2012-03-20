@@ -59,7 +59,7 @@ $(function()
 		}
 
 		$is_uploading = true;
-		var $timer = (new Date).getTime();
+		var $timer = (new Date()).getTime();
 		var $progress = $('<div class="windowbg2" style="height: 16px; width:150px; float: right; border: 1px solid black;"><div class="plainbox" style="background: #E2F3EA; height:12px; padding: 0; border-radius: 0; border: 0; width: 0px;"></div></div>')
 						.prependTo($files[$current].element);
 
@@ -68,11 +68,12 @@ $(function()
 		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 		xhr.setRequestHeader("X-File-Name", encodeURIComponent($files[$current].fileName));
 		xhr.setRequestHeader("Content-Type", "application/octet-stream");
-		xhr.upload.progress = function(e)
+		xhr.upload.onprogress = function(e)
 		{
-			if (e.lengthComputable && (new Date).getTime() - $timer > 500)
+			if (e.lengthComputable && (new Date()).getTime() - $timer > 500)
 			{
-				$timer = Date.getTime();
+				$timer = (new Date()).getTime();
+				console.log(e.loaded / e.total);
 				$progress.find('.plainbox').width((e.loaded / e.total) * 150);
 			}
 		};
