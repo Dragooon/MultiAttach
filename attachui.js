@@ -60,7 +60,7 @@ $(function()
 
 		$is_uploading = true;
 		var $timer = (new Date).getTime();
-		var $progress = $('<div class="windowbg2" style="height: 16px; width:150px; float: right; border: 1px solid black;"><div style="plainbox" style="height:12px; padding: 0; border-radius: 0; border: 0;"></div></div>')
+		var $progress = $('<div class="windowbg2" style="height: 16px; width:150px; float: right; border: 1px solid black;"><div class="plainbox" style="background: #E2F3EA; height:12px; padding: 0; border-radius: 0; border: 0; width: 0px;"></div></div>')
 						.prependTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
