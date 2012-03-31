@@ -19,12 +19,16 @@
  */
 function multiattach_post_form_pre()
 {
-	global $context, $board, $topic;
+	global $context, $board, $topic, $txt;
  	
+ 	loadPluginLanguage('Dragooon:MultiAttach', 'plugin');
+ 
  	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
  	add_js('
  	curr_board = ', $board, ';
  	curr_topic = ', $topic, ';
+ 	txt_drag_help = ', JavaScriptEscape($txt['multiattach_drag_help']), ';
+ 	txt_drag_help_subtext = ', JavaScriptEscape($txt['multiattach_drag_help_subtext']), ';
  ');
 }
 

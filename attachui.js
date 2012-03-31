@@ -26,24 +26,75 @@ $(function()
 			return attachFiles(files, 0);
 		});
 
-	document.getElementById('main').ondragover = function(e)
+	$('<div id="dropnotice" style="text-align: center; border: 1px solid black; padding: 20px;" class="windowbg2"><div class="largetext">' + txt_drag_help + '</div><div class="mediumtext">' + txt_drag_help_subtext  + '</div></div>')
+		.hide()
+		.prependTo($element.parent());
+
+	var dragUIOpened = false;
+	var dragTimer = new Date().getTime();
+
+	document.body.ondragover = function(e)
 	{
-		var effect = e.dataTransfer.effectAllowed;
-		if (effect == 'move' || effect == 'linkMove')
-			e.dataTransfer.dropEffect = 'move';
-		else
-			e.dataTransfer.dropEffect = 'copy';
+		e.dataTransfer.dropEffect = 'none';
+
+		e.stopPropagation();
+		e.preventDefault();
+
+		// Expand the additional option if it's collapsed
+		if (!dragUIOpened)
+		{
+			if (!$('#postAttachment2').is(':visible'))
+				$('#postMoreExpandLink').data('that').toggle();
+
+			// Show a neat "Drop the file here" notice
+			$element.fadeOut('fast', function()
+			{
+				$('#dropnotice').fadeIn();
+			});
+			dragUIOpened = true;
+		}
+		dragTimer = new Date().getTime();
+	};
+
+	document.body.ondragleave = function(e)
+	{
+		setTimeout(function()
+		{
+			if (new Date().getTime() - dragTimer > 200)
+			{
+				$('#dropnotice').fadeOut('fast', function()
+				{
+					$element.fadeIn();
+				});
+				dragUIOpened = false;
+			}
+		}, 200);
+	};
+
+	document.getElementById('dropnotice').ondragover = function(e)
+	{
+		e.dataTransfer.dropEffect = 'copy';
+		dragTimer = new Date().getTime();
 		e.stopPropagation();
 		e.preventDefault();
 	};
-	document.getElementById('main').ondrop = function(event)
+
+	document.getElementById('dropnotice').ondrop = function(event)
 	{
 		// Make sure we are dragging a file over
 		if (!event.dataTransfer && !(dt.files || (!$.browser.webkit && event.dataTransfer.types.contains && event.dataTransfer.types.contains('Files'))))
 			return false;
-		
+
+		dragUIOpened = false;
+
 		var files = event.dataTransfer.files;
-		return attachFiles(files, 0);
+		$('#dropnotice').fadeOut('fast', function()
+		{
+			$element.fadeIn(function()
+			{
+				attachFiles(files, 0);
+			});
+		});
 	};
 
 	var startUpload = function()
