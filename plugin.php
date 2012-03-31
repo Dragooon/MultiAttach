@@ -19,19 +19,39 @@
  */
 function multiattach_post_form_pre()
 {
-	global $context, $board, $topic, $txt;
+	global $context, $board, $topic, $txt, $settings;
  	
  	if (!allowedTo('post_attachment'))
  		return;
  
- 	loadPluginLanguage('Dragooon:MultiAttach', 'plugin');
+	loadPluginLanguage('Dragooon:MultiAttach', 'plugin');
+	loadLanguage('Errors');
  
+	$current_attach_dir = get_attach_dir();
+
+	$total_size = 0;
+	foreach ($_SESSION['temp_attachments'] as $attach => $filename)
+		$total_size += filesize($current_attach_dir . '/' . $attach);
+
  	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
  	add_js('
  	curr_board = ', $board, ';
  	curr_topic = ', $topic, ';
  	txt_drag_help = ', JavaScriptEscape($txt['multiattach_drag_help']), ';
  	txt_drag_help_subtext = ', JavaScriptEscape($txt['multiattach_drag_help_subtext']), ';
+ 	attachOpts = {
+ 		sizeLimit: ', $settings['attachmentSizeLimit'], ',
+ 		totalSizeLimit: ', $settings['attachmentPostLimit'], ',
+ 		maxNum: ', $settings['attachmentNumPerPostLimit'], ',
+ 		currentNum: ', count($_SESSION['temp_attachments']), ',
+ 		checkExtension: ', !empty($settings['attachmentCheckExtensions']) ? 'true' : 'false', ',
+ 		validExtensions: ', JavaScriptEscape($settings['attachmentExtensions']), '.split(","),
+ 		totalSize: ', round($total_size / 1024), ',
+ 		ext_error: ', JavaScriptEscape(str_replace('{attach_exts}', strtr($settings['attachmentExtensions'], array(',' => ', ')), $txt['cannot_attach_ext'])), ',
+ 		filesize_error: ', sprintf(JavaScriptEscape($txt['file_too_big']), $settings['attachmentSizeLimit']), ',
+ 		maxNum_error: ', sprintf(JavaScriptEscape($txt['attachments_limit_per_post']), $settings['attachmentNumPerPostLimit']), ',
+ 		totalFilesize_error: ', sprintf(JavaScriptEscape($txt['file_too_big']), $settings['attachmentPostLimit']), '
+ 	};
  ');
 }
 
@@ -55,16 +75,7 @@ function multiattach()
 	if (!allowedTo('post_attachment'))
 		multiattach_error('permission_denied');
 
-	if (!empty($settings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($settings['attachmentUploadDir']))
-			$settings['attachmentUploadDir'] = unserialize($settings['attachmentUploadDir']);
-
-		// Just use the current path for temp files.
-		$current_attach_dir = $settings['attachmentUploadDir'][$settings['currentAttachmentUploadDir']];
-	}
-	else
-		$current_attach_dir = $settings['attachmentUploadDir'];
+	$current_attach_dir = get_attach_dir();
 
 	$stream = fopen('php://input', 'r');
 	$filename = $_REQUEST['filename'];
@@ -131,6 +142,29 @@ function multiattach()
 	echo json_encode(array('valid' => true));
 	exit;
 }
+
+/**
+ * Returns the current attachment directory
+ *
+ * @return string
+ */
+ function get_attach_dir()
+ {
+ 	global $settings;
+ 
+ 	if (!empty($settings['currentAttachmentUploadDir']))
+	{
+		if (!is_array($settings['attachmentUploadDir']))
+			$settings['attachmentUploadDir'] = unserialize($settings['attachmentUploadDir']);
+
+		// Just use the current path for temp files.
+		$current_attach_dir = $settings['attachmentUploadDir'][$settings['currentAttachmentUploadDir']];
+	}
+	else
+		$current_attach_dir = $settings['attachmentUploadDir'];
+	
+	return $current_attach_dir;
+ }
 
 /**
  * Throws an error on our behalf

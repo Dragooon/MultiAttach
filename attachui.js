@@ -10,6 +10,7 @@ $(function()
 		$files = [],
 		$current = -1,
 		$is_uploading = false,
+		total_size = 0,
 		xhr = null;
 
 	// Release this input of the default chains, we got new ones!
@@ -160,7 +161,37 @@ $(function()
 	{
 		if (typeof(files[i]) == 'undefined')
 			return true;
-				
+
+		// Check for file's extension
+		var filename = files[i].fileName;
+		var extension = (filename.substr(filename.lastIndexOf('.') + 1, filename.length)).toLowerCase();
+		if (attachOpts.checkExtension && !in_array(extension, attachOpts.validExtensions))
+		{
+			alert(attachOpts.ext_error.replace('{ext}', extension));
+			return attachFiles(files, ++i);
+		}
+
+		// Check number of files
+		if (attachOpts.maxNum > 0 && attachOpts.currentNum + $files.length > attachOpts.maxNum)
+		{
+			alert(attachOpts.maxNum_error);
+			return;
+		}
+
+		// Check for file's size
+		if (attachOpts.sizeLimit > 0 && files[i].fileSize / 1024 > attachOpts.sizeLimit)
+		{
+			alert(attachOpts.filesize_error);
+			return attachFiles(files, ++i);
+		}
+
+		// Check total file's size
+		if (attachOpts.totalSizeLimit > 0 && (files[i].fileSize / 1024 + attachOpts.totalSize + total_size) > attachOpts.totalSizeLimit)
+		{
+			alert(attachOpts.totalFilesize_error);
+			return;
+		}
+
 		var $container = $('<div></div>').css('max-width', '500px');
 		$('<input type="button" class="delete" style="margin-top: 4px" />')
 			.click(function()
@@ -186,6 +217,7 @@ $(function()
 				}
 			})
 			.appendTo($container);
+
 		$('<span style="margin-left: 5px; font-style: italic;"></span>')
 			.text(files[i].fileName)
 			.appendTo($container);
@@ -194,6 +226,7 @@ $(function()
 		$files[$files.length] = files[i];
 		$files[$files.length - 1].element = $container;
 		$container.data('file', $files.length - 1);
+		total_size += files[i].fileSize / 1024;
 
 		// Always start upload automatically, it'll automatically skip if in progress
 		startUpload();
