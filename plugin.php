@@ -21,6 +21,9 @@ function multiattach_post_form_pre()
 {
 	global $context, $board, $topic, $txt;
  	
+ 	if (!allowedTo('post_attachment'))
+ 		return;
+ 
  	loadPluginLanguage('Dragooon:MultiAttach', 'plugin');
  
  	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
