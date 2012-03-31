@@ -91,7 +91,7 @@ function multiattach()
 		multiattach_error('attachments_limit_per_post', $dest);
 	
 	$total_size = 0;
-	foreach ($_SESSION['temp_attachments'] as $attach)
+	foreach ($_SESSION['temp_attachments'] as $attach => $filename)
 		$total_size += filesize($current_attach_dir . '/' . $attach);
 	$totalsize += filesize($dest);
 
