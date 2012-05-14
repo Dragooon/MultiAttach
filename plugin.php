@@ -4,10 +4,10 @@
  *
  * @package Dragooon:MultiAttach
  * @author Shitiz "Dragooon" Garg <Email mail@dragooon.net> <Url http://smf-media.com>
- * @copyright Shitiz "Dragooon" Garg <mail@dragooon.net>
+ * @copyright 2012, Shitiz "Dragooon" Garg <mail@dragooon.net>
  * @license
- *		Do whatever the hell you want, just give me some credit.
- *		Oh, and if this blows you or your forum to pieces, no blame on me. 'kay?
+ *		Licensed under "New BSD License (3-clause version)"
+ *		http://www.opensource.org/licenses/BSD-3-Clause
  *
  * @version 1.0
  */

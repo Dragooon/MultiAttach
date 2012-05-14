@@ -1,3 +1,16 @@
+/**
+ * Multiple attachment basic javascipt file, contains the entire UI functions
+ *
+ * @package Dragooon:MultiAttach
+ * @author Shitiz "Dragooon" Garg <Email mail@dragooon.net> <Url http://smf-media.com>
+ * @copyright 2012, Shitiz "Dragooon" Garg <mail@dragooon.net>
+ * @license
+ *		Licensed under "New BSD License (3-clause version)"
+ *		http://www.opensource.org/licenses/BSD-3-Clause
+ *
+ * @version 1.0
+ */
+
 // One method would've been to hook into Wedge's attach functions, but since there are quite a lot of fundamental differences
 // between the workings, I decided to write my own instead
 $(function()
