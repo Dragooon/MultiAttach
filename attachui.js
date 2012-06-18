@@ -176,7 +176,8 @@ $(function()
 			return true;
 
 		// Check for file's extension
-		var filename = files[i].fileName;
+		var filename = files[i].fileName || files[i].name;
+		var filesize = files[i].fileSize || files[i].size;
 		var extension = (filename.substr(filename.lastIndexOf('.') + 1, filename.length)).toLowerCase();
 		if (attachOpts.checkExtension && !in_array(extension, attachOpts.validExtensions))
 		{
@@ -192,14 +193,14 @@ $(function()
 		}
 
 		// Check for file's size
-		if (attachOpts.sizeLimit > 0 && files[i].fileSize / 1024 > attachOpts.sizeLimit)
+		if (attachOpts.sizeLimit > 0 && filesize / 1024 > attachOpts.sizeLimit)
 		{
 			alert(attachOpts.filesize_error);
 			return attachFiles(files, ++i);
 		}
 
 		// Check total file's size
-		if (attachOpts.totalSizeLimit > 0 && (files[i].fileSize / 1024 + attachOpts.totalSize + total_size) > attachOpts.totalSizeLimit)
+		if (attachOpts.totalSizeLimit > 0 && (filesize / 1024 + attachOpts.totalSize + total_size) > attachOpts.totalSizeLimit)
 		{
 			alert(attachOpts.totalFilesize_error);
 			return;
@@ -239,7 +240,7 @@ $(function()
 		$files[$files.length] = files[i];
 		$files[$files.length - 1].element = $container;
 		$container.data('file', $files.length - 1);
-		total_size += files[i].fileSize / 1024;
+		total_size += filesize / 1024;
 
 		// Always start upload automatically, it'll automatically skip if in progress
 		startUpload();
