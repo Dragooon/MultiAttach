@@ -20,39 +20,39 @@
 function multiattach_post_form_pre()
 {
 	global $context, $board, $topic, $txt, $settings;
- 	
- 	if (!allowedTo('post_attachment'))
- 		return;
- 
+
+	if (!allowedTo('post_attachment'))
+		return;
+
 	loadPluginLanguage('Dragooon:MultiAttach', 'plugin');
 	loadLanguage('Errors');
- 
+
 	$current_attach_dir = get_attach_dir();
 
 	$total_size = 0;
+	if (!isset($_SESSION['temp_attachments']))
+		$_SESSION['temp_attachments'] = array();
 	foreach ($_SESSION['temp_attachments'] as $attach => $filename)
 		$total_size += filesize($current_attach_dir . '/' . $attach);
 
- 	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
- 	add_js('
- 	curr_board = ', $board, ';
- 	curr_topic = ', $topic, ';
- 	txt_drag_help = ', JavaScriptEscape($txt['multiattach_drag_help']), ';
- 	txt_drag_help_subtext = ', JavaScriptEscape($txt['multiattach_drag_help_subtext']), ';
- 	attachOpts = {
- 		sizeLimit: ', $settings['attachmentSizeLimit'], ',
- 		totalSizeLimit: ', $settings['attachmentPostLimit'], ',
- 		maxNum: ', $settings['attachmentNumPerPostLimit'], ',
- 		currentNum: ', count($_SESSION['temp_attachments']), ',
- 		checkExtension: ', !empty($settings['attachmentCheckExtensions']) ? 'true' : 'false', ',
- 		validExtensions: ', JavaScriptEscape($settings['attachmentExtensions']), '.split(","),
- 		totalSize: ', round($total_size / 1024), ',
- 		ext_error: ', JavaScriptEscape(str_replace('{attach_exts}', strtr($settings['attachmentExtensions'], array(',' => ', ')), $txt['cannot_attach_ext'])), ',
- 		filesize_error: ', sprintf(JavaScriptEscape($txt['file_too_big']), $settings['attachmentSizeLimit']), ',
- 		maxNum_error: ', sprintf(JavaScriptEscape($txt['attachments_limit_per_post']), $settings['attachmentNumPerPostLimit']), ',
- 		totalFilesize_error: ', sprintf(JavaScriptEscape($txt['file_too_big']), $settings['attachmentPostLimit']), '
- 	};
- ');
+	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
+	add_js('
+	curr_board = ', $board, ';
+	txt_drag_help = ', JavaScriptEscape($txt['multiattach_drag_help']), ';
+	txt_drag_help_subtext = ', JavaScriptEscape($txt['multiattach_drag_help_subtext']), ';
+	attachOpts = {
+		sizeLimit: ', $settings['attachmentSizeLimit'], ',
+		totalSizeLimit: ', $settings['attachmentPostLimit'], ',
+		maxNum: ', $settings['attachmentNumPerPostLimit'], ',
+		currentNum: ', count($_SESSION['temp_attachments']), ',
+		checkExtension: ', !empty($settings['attachmentCheckExtensions']) ? 'true' : 'false', ',
+		validExtensions: ', JavaScriptEscape($settings['attachmentExtensions']), '.split(","),
+		totalSize: ', round($total_size / 1024), ',
+		ext_error: ', JavaScriptEscape(str_replace('{attach_exts}', strtr($settings['attachmentExtensions'], array(',' => ', ')), $txt['cannot_attach_ext'])), ',
+		filesize_error: ', sprintf(JavaScriptEscape($txt['file_too_big']), $settings['attachmentSizeLimit']), ',
+		maxNum_error: ', sprintf(JavaScriptEscape($txt['attachments_limit_per_post']), $settings['attachmentNumPerPostLimit']), ',
+		totalFilesize_error: ', sprintf(JavaScriptEscape($txt['file_too_big']), $settings['attachmentPostLimit']), '
+	};');
 }
 
 /**
@@ -87,7 +87,7 @@ function multiattach()
 	if (!empty($settings['attachmentCheckExtensions']))
 		if (!in_array(strtolower(substr(strrchr($filename, '.'), 1)), explode(',', strtolower($settings['attachmentExtensions']))))
 			multiattach_error('cant_upload_type');
-	
+
 	$attachID = 'post_tmp_' . $user_info['id'] . '_' . (count($_SESSION['temp_attachments']) + 1);
 	$dest = $current_attach_dir . '/' . $attachID;
 
@@ -100,11 +100,11 @@ function multiattach()
 		multiattach_error('file_too_big', $dest);
 	if (!empty($settings['attachmentNumPerPostLimit']) && (count($_SESSION['temp_attachments']) + 1) > $settings['attachmentNumPerPostLimit'])
 		multiattach_error('attachments_limit_per_post', $dest);
-	
+
 	$total_size = 0;
 	foreach ($_SESSION['temp_attachments'] as $attach => $filename)
 		$total_size += filesize($current_attach_dir . '/' . $attach);
-	$totalsize += filesize($dest);
+	$total_size += filesize($dest);
 
 	if (!empty($settings['attachmentPostLimit']) && $total_size > $settings['attachmentPostLimit'] * 1024)
 		multiattach_error('file_too_big', $dest);
@@ -148,11 +148,11 @@ function multiattach()
  *
  * @return string
  */
- function get_attach_dir()
- {
- 	global $settings;
- 
- 	if (!empty($settings['currentAttachmentUploadDir']))
+function get_attach_dir()
+{
+	global $settings;
+
+	if (!empty($settings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($settings['attachmentUploadDir']))
 			$settings['attachmentUploadDir'] = unserialize($settings['attachmentUploadDir']);
@@ -162,9 +162,9 @@ function multiattach()
 	}
 	else
 		$current_attach_dir = $settings['attachmentUploadDir'];
-	
+
 	return $current_attach_dir;
- }
+}
 
 /**
  * Throws an error on our behalf
@@ -179,8 +179,10 @@ function multiattach_error($error_code, $filepath = '')
 
 	if (!empty($filepath))
 		@unlink($filepath);
-	
+
 	loadLanguage('Errors', $language);
 	echo json_encode(array('valid' => false, 'error' => $txt[$error_code], 'code' => $error_code));
 	exit;
 }
+
+?>
