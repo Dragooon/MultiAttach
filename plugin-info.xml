@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin id="Dragooon:MultiAttach">
-  <name>Improved Attachments Upload</name>
-  <author email="mail@dragooon.net" url="http://smf-media.com/">Shitiz "Dragooon" Garg</author>
-  <description>Improves attachment interface by allowing AJAX uploading, drag and drop and multiple selection of files on modern browsers</description>
-  <version>1.0</version>
+	<name>Improved Attachments Upload</name>
+	<author email="mail@dragooon.net" url="http://smf-media.com/">Shitiz "Dragooon" Garg</author>
+	<description>Improves attachment interface by allowing AJAX uploading, drag and drop and multiple selection of files on modern browsers</description>
+	<version>1.0</version>
 
-  <hooks>
-    <!-- I need to have more jokes in my manifest files -->
-    <function point="post_form_pre" function="multiattach_post_form_pre" filename="$plugindir/plugin" />
-  </hooks>
-  <actions>
-    <action action="multiattach" function="multiattach" filename="plugin" />
-  </actions>
+	<hooks>
+		<!-- I need to have more jokes in my manifest files -->
+		<function point="post_form_pre" function="multiattach_post_form_pre" filename="$plugindir/plugin" />
+	</hooks>
+	<actions>
+		<action action="multiattach" function="multiattach" filename="plugin" />
+	</actions>
 </plugin>
