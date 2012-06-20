@@ -13,7 +13,7 @@
 
 // One method would've been to hook into Wedge's attach functions, but since there are quite a lot of fundamental differences
 // between the workings, I decided to write my own instead.
-$(function (undefined)
+$(function (jQuery, undefined)
 {
 	// No point in this if we cannot support XHR upload
 	if (File === undefined || (new XMLHttpRequest).upload === undefined)
@@ -32,24 +32,19 @@ $(function (undefined)
 		.unbind('change')
 		// Update this element to support multiple attachments
 		.attr('name', 'attachment_holder')
-		.attr('multiple', true)
 		// Bind the "change" event to properly handle multiple attachments into upload
-		.change(function () { if (this.files) return attachFiles(this.files, 0); });
+		.change(function () { return attachFiles(this.files || {}, 0); });
 
-	$('<div id="dropnotice" style="text-align: center; border: 1px solid black; padding: 20px;" class="windowbg2"><div class="largetext">' + txt_drag_help + '</div><div class="mediumtext">' + txt_drag_help_subtext  + '</div></div>')
+	$('<div id="dropnotice" style="text-align: center; border: 1px solid black; padding: 20px" class="windowbg2"><div class="largetext">' + txt_drag_help + '</div><div class="mediumtext">' + txt_drag_help_subtext  + '</div></div>')
 		.hide()
 		.prependTo($element.parent());
 
 	var dragUIOpened = false, dragTimer = +new Date();
-	$.event.props.push('dataTransfer');
 
 	$(document.body)
 		.bind('dragover', function (e)
 		{
-			e.dataTransfer.dropEffect = 'none';
-
-			e.stopPropagation();
-			e.preventDefault();
+			e.originalEvent.dataTransfer.dropEffect = 'none';
 
 			// Expand the additional option if it's collapsed
 			if (!dragUIOpened)
@@ -62,6 +57,8 @@ $(function (undefined)
 				dragUIOpened = true;
 			}
 			dragTimer = +new Date();
+
+			return false;
 		})
 		.bind('dragleave', function ()
 		{
@@ -79,24 +76,25 @@ $(function (undefined)
 		.bind('dragover', function (e)
 		{
 			dragTimer = +new Date();
-			e.dataTransfer.dropEffect = 'copy';
+			e.originalEvent.dataTransfer.dropEffect = 'copy';
 
-			e.stopPropagation();
-			e.preventDefault();
+			return false;
 		})
 		.bind('drop', function (e)
 		{
 			// Make sure we are dragging a file over
-			if (!e.dataTransfer && !(dt.files || (!$.browser.webkit && e.dataTransfer.types.contains && e.dataTransfer.types.contains('Files'))))
+			if (!e.originalEvent.dataTransfer && !(dt.files || (!$.browser.webkit && e.originalEvent.dataTransfer.types.contains && e.originalEvent.dataTransfer.types.contains('Files'))))
 				return false;
 
 			dragUIOpened = false;
 
-			var files = e.dataTransfer.files;
+			var files = e.originalEvent.dataTransfer.files;
 			$('#dropnotice').fadeOut('fast', function ()
 			{
 				$element.fadeIn(function () { attachFiles(files, 0); });
 			});
+
+			return false;
 		});
 
 	var startUpload = function ()
@@ -114,14 +112,14 @@ $(function (undefined)
 		$is_uploading = true;
 		var
 			$timer = +new Date(),
-			$progress = $('<div class="windowbg2" style="height: 16px; width: 150px; float: right; border: 1px solid black"><div class="plainbox" style="background: #e2f3ea; height: 12px; padding: 0; border-radius: 0; border: 0; width: 0"></div></div>')
+			$progress = $('<div class="windowbg2" style="height: 16px; width: 150px; float: right; border: 1px solid #666"><div class="plainbox" style="background: #c2d3ca; height: 12px; padding: 0; border-radius: 0; border: 0; width: 0"></div></div>')
 				.prependTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
 		xhr.open('POST', weUrl() + 'action=multiattach;filename=' + ($files[$current].fileName || $files[$current].name) + ';board=' + curr_board, true);
-		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-		xhr.setRequestHeader("X-File-Name", encodeURIComponent($files[$current].fileName || $files[$current].name));
-		xhr.setRequestHeader("Content-Type", "application/octet-stream");
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		xhr.setRequestHeader('X-File-Name', encodeURIComponent($files[$current].fileName || $files[$current].name));
+		xhr.setRequestHeader('Content-Type', 'application/octet-stream');
 		xhr.upload.onprogress = function (e)
 		{
 			if (e.lengthComputable && (+new Date()) - $timer > 500)
@@ -143,7 +141,7 @@ $(function (undefined)
 				if ($response.valid)
 					$files[$current].element
 						.find('span').css('font-style', 'normal').end()
-						.prepend($('<input type="button" class="submit" style="margin-top: 4px" />'));
+						.prepend($('<input type="button" class="submit" style="margin-top: 4px"></input>'));
 				else
 					$files[$current].element.find('span').css('color', 'red');
 
@@ -194,10 +192,11 @@ $(function (undefined)
 		}
 
 		var $container = $('<div></div>').css('max-width', '500px');
-		$('<input type="button" class="delete" style="margin-top: 4px" />')
+		$('<input type="button" class="delete" style="margin-top: 4px"></input>')
+			.val(we_cancel)
 			.click(function ()
 			{
-				var i = $(this).data('file'), n = i + 1, len = files.length;
+				var i = $(this).data('file'), n = i + 1, len = $files.length;
 
 				$(this).parent().remove();
 
