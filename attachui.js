@@ -32,9 +32,8 @@ $(function (jQuery, undefined)
 		.unbind('change')
 		// Update this element to support multiple attachments
 		.attr('name', 'attachment_holder')
-		.attr('multiple', true)
 		// Bind the "change" event to properly handle multiple attachments into upload
-		.change(function () { if (this.files) return attachFiles(this.files, 0); });
+		.change(function () { return attachFiles(this.files || {}, 0); });
 
 	$('<div id="dropnotice" style="text-align: center; border: 1px solid black; padding: 20px" class="windowbg2"><div class="largetext">' + txt_drag_help + '</div><div class="mediumtext">' + txt_drag_help_subtext  + '</div></div>')
 		.hide()
@@ -113,14 +112,14 @@ $(function (jQuery, undefined)
 		$is_uploading = true;
 		var
 			$timer = +new Date(),
-			$progress = $('<div class="windowbg2" style="height: 16px; width: 150px; float: right; border: 1px solid black"><div class="plainbox" style="background: #e2f3ea; height: 12px; padding: 0; border-radius: 0; border: 0; width: 0"></div></div>')
+			$progress = $('<div class="windowbg2" style="height: 16px; width: 150px; float: right; border: 1px solid #666"><div class="plainbox" style="background: #c2d3ca; height: 12px; padding: 0; border-radius: 0; border: 0; width: 0"></div></div>')
 				.prependTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
 		xhr.open('POST', weUrl() + 'action=multiattach;filename=' + ($files[$current].fileName || $files[$current].name) + ';board=' + curr_board, true);
-		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-		xhr.setRequestHeader("X-File-Name", encodeURIComponent($files[$current].fileName || $files[$current].name));
-		xhr.setRequestHeader("Content-Type", "application/octet-stream");
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		xhr.setRequestHeader('X-File-Name', encodeURIComponent($files[$current].fileName || $files[$current].name));
+		xhr.setRequestHeader('Content-Type', 'application/octet-stream');
 		xhr.upload.onprogress = function (e)
 		{
 			if (e.lengthComputable && (+new Date()) - $timer > 500)
@@ -142,7 +141,7 @@ $(function (jQuery, undefined)
 				if ($response.valid)
 					$files[$current].element
 						.find('span').css('font-style', 'normal').end()
-						.prepend($('<input type="button" class="submit" style="margin-top: 4px" />'));
+						.prepend($('<input type="button" class="submit" style="margin-top: 4px"></input>'));
 				else
 					$files[$current].element.find('span').css('color', 'red');
 
@@ -193,10 +192,11 @@ $(function (jQuery, undefined)
 		}
 
 		var $container = $('<div></div>').css('max-width', '500px');
-		$('<input type="button" class="delete" style="margin-top: 4px" />')
+		$('<input type="button" class="delete" style="margin-top: 4px"></input>')
+			.val(we_cancel)
 			.click(function ()
 			{
-				var i = $(this).data('file'), n = i + 1, len = files.length;
+				var i = $(this).data('file'), n = i + 1, len = $files.length;
 
 				$(this).parent().remove();
 
