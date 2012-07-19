@@ -37,7 +37,6 @@ function multiattach_post_form_pre()
 
 	add_plugin_js_file('Dragooon:MultiAttach', 'attachui.js');
 	add_js('
-	curr_board = ', $board, ';
 	txt_drag_help = ', JavaScriptEscape($txt['multiattach_drag_help']), ';
 	txt_drag_help_subtext = ', JavaScriptEscape($txt['multiattach_drag_help_subtext']), ';
 	attachOpts = {
@@ -78,7 +77,7 @@ function multiattach()
 	$current_attach_dir = get_attach_dir();
 
 	$stream = fopen('php://input', 'r');
-	$filename = $_REQUEST['filename'];
+	$filename = isset($_SERVER['HTTP_X_FILE_NAME']) ? $_SERVER['HTTP_X_FILE_NAME'] : '';
 
 	if (empty($filename) || !is_writable($current_attach_dir))
 		multiattach_error('invalid_filename');
@@ -86,7 +85,7 @@ function multiattach()
 	// Check for extensions
 	if (!empty($settings['attachmentCheckExtensions']))
 		if (!in_array(strtolower(substr(strrchr($filename, '.'), 1)), explode(',', strtolower($settings['attachmentExtensions']))))
-			multiattach_error('cant_upload_type');
+			multiattach_error($txt['cant_upload_type'] . ' ' . $settings['attachmentExtensions']);
 
 	$attachID = 'post_tmp_' . $user_info['id'] . '_' . (count($_SESSION['temp_attachments']) + 1);
 	$dest = $current_attach_dir . '/' . $attachID;
@@ -102,7 +101,7 @@ function multiattach()
 		multiattach_error('attachments_limit_per_post', $dest);
 
 	$total_size = 0;
-	foreach ($_SESSION['temp_attachments'] as $attach => $filename)
+	foreach ($_SESSION['temp_attachments'] as $attach => $dummy)
 		$total_size += filesize($current_attach_dir . '/' . $attach);
 	$total_size += filesize($dest);
 
@@ -139,7 +138,7 @@ function multiattach()
 
 	@chmod($dest, 0644);
 
-	echo json_encode(array('valid' => true));
+	echo json_encode(array('valid' => true, 'id' => $attachID, 'name' => $filename));
 	exit;
 }
 
@@ -180,8 +179,8 @@ function multiattach_error($error_code, $filepath = '')
 	if (!empty($filepath))
 		@unlink($filepath);
 
-	loadLanguage('Errors', $language);
-	echo json_encode(array('valid' => false, 'error' => $txt[$error_code], 'code' => $error_code));
+	loadLanguage(array('Errors', 'Post'), $language);
+	echo json_encode(array('valid' => false, 'error' => isset($txt[$error_code]) ? $txt[$error_code] : $error_code));
 	exit;
 }
 
