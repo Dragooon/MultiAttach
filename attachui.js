@@ -112,20 +112,19 @@ $(function (jQuery, undefined)
 		$is_uploading = true;
 		var
 			$timer = +new Date(),
-			$progress = $('<div class="windowbg2" style="height: 16px; width: 150px; float: right; border: 1px solid #666"><div class="plainbox" style="background: #c2d3ca; height: 12px; padding: 0; border-radius: 0; border: 0; width: 0"></div></div>')
-				.prependTo($files[$current].element);
+			$progress = $('<div class="windowbg2 inline-block middle" style="height: 16px; width: 150px; margin: 5px 10px; border: 1px solid #666"><div class="plainbox" style="background: #c2d3ca; height: 12px; padding: 0; border-radius: 0; border: 0; width: 0"></div></div>')
+				.appendTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
-		xhr.open('POST', weUrl() + 'action=multiattach;filename=' + ($files[$current].fileName || $files[$current].name) + ';board=' + curr_board, true);
+		xhr.open('POST', weUrl() + 'action=multiattach;board=' + we_board);
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-		xhr.setRequestHeader('X-File-Name', encodeURIComponent($files[$current].fileName || $files[$current].name));
+		xhr.setRequestHeader('X-File-Name', $files[$current].fileName || $files[$current].name);
 		xhr.setRequestHeader('Content-Type', 'application/octet-stream');
 		xhr.upload.onprogress = function (e)
 		{
 			if (e.lengthComputable && (+new Date()) - $timer > 500)
 			{
 				$timer = +new Date();
-				// console.log(e.loaded / e.total);
 				$progress.find('.plainbox').width((e.loaded / e.total) * 150);
 			}
 		};
@@ -134,18 +133,24 @@ $(function (jQuery, undefined)
 			if (xhr.readyState == 4 && xhr.status == 200)
 			{
 				var $response = $.parseJSON(xhr.responseText);
-				$is_uploading = false;
 				$progress.remove();
 
-				$files[$current].element.find('.delete').remove();
+				// !! @todo: still needs to be able to handle removal requests...
 				if ($response.valid)
+				{
 					$files[$current].element
-						.find('span').css('font-style', 'normal').end()
-						.prepend($('<input type="button" class="submit" style="margin-top: 4px"></input>'));
+						.find('.delete').val(we_delete).end()
+						.find('span').css('font-style', '');
+					$('input[name="attach_del\[\]"]').last().closest('dd').after('<dd class="smalltext"><label><input type="checkbox" id="attachment_' + $response.id + '" name="attach_del[]" value="' + $response.id + '" checked onclick="oAttach().checkActive();" /> ' + $response.name + '</label></dd>');
+				}
 				else
-					$files[$current].element.find('span').css('color', 'red');
+					$files[$current].element
+						.find('.delete').remove().end()
+						.find('span').css('color', 'red')
+						.append('<br>' + $response.error);
 
 				// Move onto the next file
+				$is_uploading = false;
 				startUpload();
 			}
 		};
@@ -191,12 +196,13 @@ $(function (jQuery, undefined)
 			return;
 		}
 
-		var $container = $('<div></div>').css('max-width', '500px');
-		$('<input type="button" class="delete" style="margin-top: 4px"></input>')
+		var $container = $('<span>');
+
+		$('<input type="button" class="delete" style="margin-top: 4px">')
 			.val(we_cancel)
 			.click(function ()
 			{
-				var i = $(this).data('file'), n = i + 1, len = $files.length;
+				var i = $(this).data('id'), n = i + 1, len = $files.length;
 
 				$(this).parent().remove();
 
@@ -211,6 +217,7 @@ $(function (jQuery, undefined)
 				// This the one being uploaded?
 				if (i == $current && $is_uploading)
 				{
+					// !! @todo: this doesn't work. It'll keep uploading...
 					xhr.abort();
 					$current--;
 					startUpload();
@@ -218,14 +225,36 @@ $(function (jQuery, undefined)
 			})
 			.appendTo($container);
 
-		$('<span style="margin-left: 5px; font-style: italic"></span>')
+		$('<span style="margin: 5px 10px; font-style: italic">')
 			.text(files[i].fileName || files[i].name)
 			.appendTo($container);
 
-		$container.appendTo($element.parent());
+		if (/^image\//.test(files[i].type))
+		{
+			var imgPreview = new FileReader();
+
+			if (imgPreview)
+			{
+				imgPreview.onload = function (e)
+				{
+					$('<img class="middle">')
+						.appendTo($container)
+						.load(function () {
+							$(this)
+								.height(Math.min($(this).height(), 50))
+								.show();
+						})
+						.attr('src', e.target.result)
+						.hide();
+				};
+				imgPreview.readAsDataURL(files[i]);
+			}
+		}
+
+		$container.appendTo($element.parent().append('<br><br>'));
 		$files[$files.length] = files[i];
 		$files[$files.length - 1].element = $container;
-		$container.data('file', $files.length - 1);
+		$container.data('id', $files.length - 1);
 		total_size += filesize / 1024;
 
 		// Always start upload automatically, it'll automatically skip if in progress
