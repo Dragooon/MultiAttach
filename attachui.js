@@ -116,7 +116,7 @@ $(function (jQuery, undefined)
 				.appendTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
-		xhr.open('POST', weUrl() + 'action=multiattach;board=' + we_board);
+		xhr.open('POST', weUrl('action=multiattach;board=' + we_board));
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.setRequestHeader('X-File-Name', $files[$current].fileName || $files[$current].name);
 		xhr.setRequestHeader('Content-Type', 'application/octet-stream');
