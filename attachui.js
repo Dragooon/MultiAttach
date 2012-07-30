@@ -15,8 +15,8 @@
 // between the workings, I decided to write my own instead.
 $(function (jQuery, undefined)
 {
-	// No point in this if we cannot support XHR upload
-	if (File === undefined || (new XMLHttpRequest).upload === undefined)
+	// No point in this if we cannot support XHR level 2 upload
+	if (!(window.ProgressEvent && window.FormData && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest))
 		return true;
 
 	var
@@ -116,7 +116,7 @@ $(function (jQuery, undefined)
 				.appendTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
-		xhr.open('POST', weUrl() + 'action=multiattach;board=' + we_board);
+		xhr.open('POST', weUrl('action=multiattach;board=' + we_board));
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.setRequestHeader('X-File-Name', $files[$current].fileName || $files[$current].name);
 		xhr.setRequestHeader('Content-Type', 'application/octet-stream');
