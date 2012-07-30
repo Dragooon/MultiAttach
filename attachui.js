@@ -202,7 +202,7 @@ $(function (jQuery, undefined)
 			.val(we_cancel)
 			.click(function ()
 			{
-				var i = $(this).data('id'), n = i + 1, len = $files.length;
+				var i = $(this).parent().data('id'), n = i + 1, len = $files.length;
 
 				$(this).parent().remove();
 
@@ -217,7 +217,6 @@ $(function (jQuery, undefined)
 				// This the one being uploaded?
 				if (i == $current && $is_uploading)
 				{
-					// !! @todo: this doesn't work. It'll keep uploading...
 					xhr.abort();
 					$current--;
 					startUpload();
