@@ -210,8 +210,9 @@ $(function (jQuery, undefined)
 				for (; n < len; n++)
 				{
 					var file = $files[n];
-					delete $files[n];
+					file.element.data('id', n - 1);
 					$files[n - 1] = file;
+					delete $files[n];
 				}
 
 				// This the one being uploaded?
