@@ -219,6 +219,7 @@ $(function (jQuery, undefined)
 				if (i == $current && $is_uploading)
 				{
 					xhr.abort();
+					$is_uploading = false;
 					$current--;
 					startUpload();
 				}
