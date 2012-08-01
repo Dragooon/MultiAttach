@@ -94,6 +94,16 @@ function multiattach()
 	stream_copy_to_stream($stream, $target);
 	fclose($target);
 
+	// Make sure the size declared by the browser is same as the one we received
+	// This is mostly because on abort the request seems to be dumped into the
+	// script, if there's a difference of filesize there's a good chance it was
+	// an abort
+	if (filesize($dest) < $_SERVER['CONTENT_LENGTH'])
+	{
+		@unlink($dest);
+		exit;
+	}
+
 	// Do our basic attachment validation checks before counting this file in
 	if (!empty($settings['attachmentSizeLimit']) &&	filesize($dest) > $settings['attachmentSizeLimit'] * 1024)
 		multiattach_error('file_too_big', $dest);
