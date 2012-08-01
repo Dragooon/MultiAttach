@@ -206,6 +206,8 @@ $(function (jQuery, undefined)
 
 				$(this).parent().remove();
 
+				delete $files[i];
+
 				// Shift consecutive file element's index
 				for (; n < len; n++)
 				{
