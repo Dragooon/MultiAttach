@@ -15,8 +15,8 @@
 // between the workings, I decided to write my own instead.
 $(function (jQuery, undefined)
 {
-	// No point in this if we cannot support XHR upload
-	if (File === undefined || (new XMLHttpRequest).upload === undefined)
+	// No point in this if we cannot support XHR level 2 upload
+	if (!(window.ProgressEvent && window.FormData && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest))
 		return true;
 
 	var
