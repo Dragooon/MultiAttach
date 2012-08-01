@@ -196,7 +196,7 @@ $(function (jQuery, undefined)
 			return;
 		}
 
-		var $container = $('<span>');
+		var $container = $('<div>');
 
 		$('<input type="button" class="delete" style="margin-top: 4px">')
 			.val(we_cancel)
@@ -250,7 +250,7 @@ $(function (jQuery, undefined)
 			}
 		}
 
-		$container.appendTo($element.parent().append('<br><br>'));
+		$container.appendTo($element.parent());
 		$files[$files.length] = files[i];
 		$files[$files.length - 1].element = $container;
 		$container.data('id', $files.length - 1);
