@@ -161,7 +161,17 @@ $(function (jQuery, undefined)
 	attachFiles = function (files, i)
 	{
 		if (files[i] === undefined)
+		{
+			// Since we automatically take the files and upload them, the file input
+			// should be empty so that we don't upload on POST
+			$clone = $element.clone(true);
+			$('<form></form>').append($clone)[0].reset();
+			$element.before($clone).detach();
+			$.cleanData($element);
+			$element = $clone;
+
 			return true;
+		}
 
 		// Check for file's extension
 		var
