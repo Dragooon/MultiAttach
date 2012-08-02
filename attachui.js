@@ -212,20 +212,15 @@ $(function (jQuery, undefined)
 			.val(we_cancel)
 			.click(function ()
 			{
-				var i = $(this).parent().data('id'), n = i + 1, len = $files.length;
+				var i = $(this).parent().data('id');
 
 				$(this).parent().remove();
 
-				delete $files[i];
+				$files.splice(i, 1);
 
-				// Shift consecutive file element's index
-				for (; n < len; n++)
-				{
-					var file = $files[n];
-					file.element.data('id', n - 1);
-					$files[n - 1] = file;
-					delete $files[n];
-				}
+				// Fix all the IDs to correctly match their array index
+				for (j = 0; j < $files.length; j++)
+					$files[j].element.data('id', j);
 
 				// This the one being uploaded?
 				if (i == $current && $is_uploading)
