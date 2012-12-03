@@ -72,6 +72,16 @@ $(function (jQuery, undefined)
 			}, 200);
 		});
 
+	// Bind the form to prevent acidental submitting when uploading
+	$('#postmodify').bind('submit', function(e)
+	{
+		if ($is_uploading)
+		{
+			alert(txt_currently_uploading);
+			return false;
+		}
+	});
+
 	$('#dropnotice')
 		.bind('dragover', function (e)
 		{

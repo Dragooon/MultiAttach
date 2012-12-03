@@ -39,6 +39,7 @@ function multiattach_post_form_pre()
 	add_js('
 	txt_drag_help = ', JavaScriptEscape($txt['multiattach_drag_help']), ';
 	txt_drag_help_subtext = ', JavaScriptEscape($txt['multiattach_drag_help_subtext']), ';
+	txt_currently_uploading = ', JavaScriptEscape($txt['multiattach_currently_uploading']), ';
 	attachOpts = {
 		sizeLimit: ', $settings['attachmentSizeLimit'], ',
 		totalSizeLimit: ', $settings['attachmentPostLimit'], ',
