@@ -46,6 +46,11 @@ $(function (jQuery, undefined)
 	$(document.body)
 		.on('dragover', function (e)
 		{
+			// Make sure we are dragging a file over
+			var dt = e.originalEvent.dataTransfer;
+			if (dt.types == null || !(dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('application/x-moz-file')))
+				return true;
+			
 			e.originalEvent.dataTransfer.dropEffect = 'none';
 
 			// Expand the additional option if it's collapsed
@@ -94,13 +99,15 @@ $(function (jQuery, undefined)
 		})
 		.on('drop', function (e)
 		{
-			// Make sure we are dragging a file over
-			if (!e.originalEvent.dataTransfer && !(dt.files || (!is_webkit && e.originalEvent.dataTransfer.types.contains && e.originalEvent.dataTransfer.types.contains('Files'))))
+			var dt = e.originalEvent.dataTransfer;
+
+			// Make sure we are dropping a file over
+			if (!dt || !(dt.files || (!is_webkit && dt.types.contains && dt.types.contains('Files'))))
 				return false;
 
 			dragUIOpened = false;
 
-			var files = e.originalEvent.dataTransfer.files;
+			var files = dt.files;
 			$('#dropnotice').fadeOut('fast', function ()
 			{
 				$element.fadeIn(function () { attachFiles(files, 0); });
