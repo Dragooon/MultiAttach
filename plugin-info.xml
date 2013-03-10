@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plugin id="Dragooon:MultiAttach">
+<plugin id="Wedgeward:MassAttach">
 	<name>Improved Attachments Upload</name>
 	<author email="mail@dragooon.net" url="http://smf-media.com/">Shitiz Garg (Dragooon) &amp; René-Gilles Deberdt (Nao)</author>
 	<description>Improves attachment interface by allowing AJAX uploading, drag and drop and multiple selection of files on modern browsers</description>
@@ -7,9 +7,9 @@
 
 	<hooks>
 		<!-- I need to have more jokes in my manifest files -->
-		<function point="post_form_pre" function="multiattach_post_form_pre" filename="$plugindir/plugin" />
+		<function point="post_form_pre" function="massattach_post_form_pre" filename="$plugindir/plugin" />
 	</hooks>
 	<actions>
-		<action action="multiattach" function="multiattach" filename="plugin" />
+		<action action="massattach" function="massattach" filename="plugin" />
 	</actions>
 </plugin>

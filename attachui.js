@@ -1,8 +1,8 @@
 /**
- * Multiple attachment basic javascipt file, contains the entire UI functions
+ * Multiple attachment basic JavaScript file, contains the entire UI functions
  *
- * @package Dragooon:MultiAttach
- * @author Shitiz "Dragooon" Garg <Email mail@dragooon.net> <Url http://smf-media.com>
+ * @package Wedgward:MassAttach
+ * @author Shitiz "Dragooon" Garg <Email mail@dragooon.net> <Url http://smf-media.com> (and Nao)
  * @copyright 2012, Shitiz "Dragooon" Garg <mail@dragooon.net>
  * @license
  *		Licensed under "New BSD License (3-clause version)"
@@ -11,12 +11,14 @@
  * @version 1.0
  */
 
+@language Wedgeward:MassAttach:plugin;
+
 // One method would've been to hook into Wedge's attach functions, but since there are quite a lot of fundamental differences
 // between the workings, I decided to write my own instead.
 $(function (jQuery, undefined)
 {
 	// No point in this if we cannot support XHR level 2 upload
-	if (!(window.ProgressEvent && window.FormData && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest))
+	if (!(window.ProgressEvent && window.FormData && $.support.cors))
 		return true;
 
 	var
@@ -29,20 +31,20 @@ $(function (jQuery, undefined)
 
 	$element
 		// Release this input of the default chains, we got new ones!
-		.unbind('change')
+		.off('change')
 		// Update this element to support multiple attachments
 		.attr('name', 'attachment_holder')
 		// Bind the "change" event to properly handle multiple attachments into upload
 		.change(function () { return attachFiles(this.files || {}, 0); });
 
-	$('<div id="dropnotice" style="text-align: center; border: 1px solid black; padding: 20px" class="windowbg2"><div class="largetext">' + txt_drag_help + '</div><div class="mediumtext">' + txt_drag_help_subtext  + '</div></div>')
+	$('<div id="dropnotice" style="text-align: center; border: 1px solid black; padding: 20px" class="windowbg2"><div class="largetext">' + $txt['massattach_drag_help'] + '</div><div class="mediumtext">' + $txt['massattach_drag_help_subtext'] + '</div></div>')
 		.hide()
 		.prependTo($element.parent());
 
 	var dragUIOpened = false, dragTimer = +new Date();
 
 	$(document.body)
-		.bind('dragover', function (e)
+		.on('dragover', function (e)
 		{
 			e.originalEvent.dataTransfer.dropEffect = 'none';
 
@@ -60,7 +62,7 @@ $(function (jQuery, undefined)
 
 			return false;
 		})
-		.bind('dragleave', function ()
+		.on('dragleave', function ()
 		{
 			setTimeout(function ()
 			{
@@ -72,28 +74,28 @@ $(function (jQuery, undefined)
 			}, 200);
 		});
 
-	// Bind the form to prevent acidental submitting when uploading
-	$('#postmodify').bind('submit', function(e)
+	// Bind the form to prevent accidental submitting when uploading.
+	$('#postmodify').on('submit', function (e)
 	{
 		if ($is_uploading)
 		{
-			alert(txt_currently_uploading);
+			say($txt['massattach_currently_uploading']);
 			return false;
 		}
 	});
 
 	$('#dropnotice')
-		.bind('dragover', function (e)
+		.on('dragover', function (e)
 		{
 			dragTimer = +new Date();
 			e.originalEvent.dataTransfer.dropEffect = 'copy';
 
 			return false;
 		})
-		.bind('drop', function (e)
+		.on('drop', function (e)
 		{
 			// Make sure we are dragging a file over
-			if (!e.originalEvent.dataTransfer && !(dt.files || (!$.browser.webkit && e.originalEvent.dataTransfer.types.contains && e.originalEvent.dataTransfer.types.contains('Files'))))
+			if (!e.originalEvent.dataTransfer && !(dt.files || (!is_webkit && e.originalEvent.dataTransfer.types.contains && e.originalEvent.dataTransfer.types.contains('Files'))))
 				return false;
 
 			dragUIOpened = false;
@@ -126,7 +128,7 @@ $(function (jQuery, undefined)
 				.appendTo($files[$current].element);
 
 		xhr = new XMLHttpRequest();
-		xhr.open('POST', weUrl('action=multiattach;board=' + we_board));
+		xhr.open('POST', weUrl('action=massattach;board=' + we_board));
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.setRequestHeader('X-File-Name', $files[$current].fileName || $files[$current].name);
 		xhr.setRequestHeader('Content-Type', 'application/octet-stream');
@@ -187,36 +189,36 @@ $(function (jQuery, undefined)
 		var
 			filename = files[i].fileName || files[i].name,
 			filesize = files[i].fileSize || files[i].size,
-			extension = filename.substr(filename.lastIndexOf('.') + 1, filename.length).toLowerCase();
+			extension = filename.slice(filename.lastIndexOf('.') + 1).toLowerCase();
 
 		if (attachOpts.checkExtension && !in_array(extension, attachOpts.validExtensions))
 		{
-			alert(attachOpts.ext_error.replace('{ext}', extension));
+			say(attachOpts.ext_error.replace('{ext}', extension));
 			return attachFiles(files, ++i);
 		}
 
 		// Check number of files
 		if (attachOpts.maxNum > 0 && attachOpts.currentNum + $files.length > attachOpts.maxNum)
 		{
-			alert(attachOpts.maxNum_error);
+			say(attachOpts.maxNum_error);
 			return;
 		}
 
 		// Check for file's size
 		if (attachOpts.sizeLimit > 0 && filesize / 1024 > attachOpts.sizeLimit)
 		{
-			alert(attachOpts.filesize_error);
+			say(attachOpts.filesize_error);
 			return attachFiles(files, ++i);
 		}
 
 		// Check total file's size
 		if (attachOpts.totalSizeLimit > 0 && (filesize / 1024 + attachOpts.totalSize + total_size) > attachOpts.totalSizeLimit)
 		{
-			alert(attachOpts.totalFilesize_error);
+			say(attachOpts.totalFilesize_error);
 			return;
 		}
 
-		var $container = $('<div>');
+		var $container = $('<div style="margin-top: 8px">');
 
 		$('<input type="button" class="delete" style="margin-top: 4px">')
 			.val(we_cancel)
